@@ -6,18 +6,16 @@ using System.Windows.Forms;
 
 using BizHawk.Client.Common;
 
-using NLua;
-
 namespace BizHawk.Client.EmuHawk
 {
-	public class LuaPictureBox : PictureBox
+	public class LuaPictureBox<TTable> : PictureBox
 	{
 		private readonly Dictionary<string, Image> _imageCache = new Dictionary<string, Image>();
 
 		private readonly Dictionary<Color, SolidBrush> _solidBrushes = new Dictionary<Color, SolidBrush>();
 		private readonly Dictionary<Color, Pen> _pens = new Dictionary<Color, Pen>();
 
-		internal NLuaTableHelper TableHelper { private get; set; }
+		internal ILuaTableHelper<TTable> TableHelper { private get; set; }
 
 		private SolidBrush GetBrush(Color color)
 		{
@@ -78,12 +76,12 @@ namespace BizHawk.Client.EmuHawk
 			_defaultTextBackground = color;
 		}
 
-		public void DrawBezier(LuaTable points, Color color)
+		public void DrawBezier(TTable points, Color color)
 		{
 			var pointsArr = new Point[4];
 
 			var i = 0;
-			foreach (var point in TableHelper.EnumerateValues<LuaTable>(points)
+			foreach (var point in TableHelper.EnumerateValues<TTable>(points)
 				.Select(table => TableHelper.EnumerateValues<double>(table).ToList()))
 			{
 				pointsArr[i] = new Point((int) point[0], (int) point[1]);
@@ -256,9 +254,9 @@ namespace BizHawk.Client.EmuHawk
 			boxBackground.DrawLine(GetPen(color ?? _defaultForeground), x, y, x + 0.1F, y);
 		}
 
-		public void DrawPolygon(LuaTable points, int? x = null, int? y = null, Color? line = null, Color? background = null)
+		public void DrawPolygon(TTable points, int? x = null, int? y = null, Color? line = null, Color? background = null)
 		{
-			var pointsList = TableHelper.EnumerateValues<LuaTable>(points)
+			var pointsList = TableHelper.EnumerateValues<TTable>(points)
 				.Select(table => TableHelper.EnumerateValues<double>(table).ToList()).ToList();
 			var pointsArr = new Point[pointsList.Count];
 			var i = 0;

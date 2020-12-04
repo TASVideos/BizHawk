@@ -7,11 +7,11 @@ using NLua;
 
 namespace BizHawk.Client.EmuHawk
 {
-	public sealed class ConsoleLuaLibrary : LuaLibraryBase
+	public sealed class ConsoleLuaLibrary : LuaLibraryBase<LuaTable>
 	{
 		public ToolManager Tools { get; set; }
 
-		public ConsoleLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public ConsoleLuaLibrary(ILuaLibEnv<LuaTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "console";

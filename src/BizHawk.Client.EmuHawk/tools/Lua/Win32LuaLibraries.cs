@@ -24,7 +24,7 @@ namespace BizHawk.Client.EmuHawk
 			IEmulator emulator,
 			IGameInfo game)
 		{
-			void EnumerateLuaFunctions(string name, Type type, LuaLibraryBase instance)
+			void EnumerateLuaFunctions(string name, Type type, LuaLibraryBase<LuaTable> instance)
 			{
 				if (instance != null) _lua.NewTable(name);
 				foreach (var method in type.GetMethods())
@@ -50,7 +50,7 @@ namespace BizHawk.Client.EmuHawk
 
 			// Register lua libraries
 			foreach (var lib in Client.Common.ReflectionCache.Types.Concat(EmuHawk.ReflectionCache.Types)
-				.Where(t => typeof(LuaLibraryBase).IsAssignableFrom(t) && t.IsSealed && ServiceInjector.IsAvailable(serviceProvider, t)))
+				.Where(t => typeof(LuaLibraryBase<>).IsAssignableFrom(t) && t.IsSealed && ServiceInjector.IsAvailable(serviceProvider, t)))
 			{
 				bool addLibrary = true;
 				var attributes = lib.GetCustomAttributes(typeof(LuaLibraryAttribute), false);
@@ -61,12 +61,12 @@ namespace BizHawk.Client.EmuHawk
 
 				if (addLibrary)
 				{
-					var instance = (LuaLibraryBase) Activator.CreateInstance(lib, this, apiContainer, (Action<string>) LogToLuaConsole);
+					var instance = (LuaLibraryBase<LuaTable>) Activator.CreateInstance(lib, this, apiContainer, (Action<string>) LogToLuaConsole);
 					ServiceInjector.UpdateServices(serviceProvider, instance);
 
 					// TODO: make EmuHawk libraries have a base class with common properties such as this
 					// and inject them here
-					if (instance is ClientLuaLibrary clientLib)
+					if (instance is ClientLuaLibrary<LuaTable> clientLib)
 					{
 						clientLib.MainForm = _mainForm;
 					}
@@ -75,16 +75,16 @@ namespace BizHawk.Client.EmuHawk
 						consoleLib.Tools = _mainForm.Tools;
 						_logToLuaConsoleCallback = consoleLib.Log;
 					}
-					else if (instance is GuiLuaLibrary guiLib)
+					else if (instance is GuiLuaLibrary<LuaTable> guiLib)
 					{
 						guiLib.CreateLuaCanvasCallback = (width, height, x, y) =>
 						{
-							var canvas = new LuaCanvas(width, height, x, y, _th, LogToLuaConsole);
+							var canvas = new LuaCanvas<LuaTable>(width, height, x, y, _th, LogToLuaConsole);
 							canvas.Show();
 							return _th.ObjectToTable(canvas);
 						};
 					}
-					else if (instance is TAStudioLuaLibrary tastudioLib)
+					else if (instance is TAStudioLuaLibrary<LuaTable> tastudioLib)
 					{
 						tastudioLib.Tools = _mainForm.Tools;
 					}
@@ -99,7 +99,7 @@ namespace BizHawk.Client.EmuHawk
 			EmulationLuaLibrary.FrameAdvanceCallback = Frameadvance;
 			EmulationLuaLibrary.YieldCallback = EmuYield;
 
-			EnumerateLuaFunctions(nameof(LuaCanvas), typeof(LuaCanvas), null); // add LuaCanvas to Lua function reference table
+			EnumerateLuaFunctions("LuaCanvas", typeof(LuaCanvas<LuaTable>), null); // add LuaCanvas to Lua function reference table
 		}
 
 		private readonly MainForm _mainForm;
@@ -111,23 +111,23 @@ namespace BizHawk.Client.EmuHawk
 
 		private static Action<object[]> _logToLuaConsoleCallback = a => Console.WriteLine("a Lua lib is logging during init and the console lib hasn't been initialised yet");
 
-		private FormsLuaLibrary FormsLibrary => (FormsLuaLibrary)Libraries[typeof(FormsLuaLibrary)];
+		private FormsLuaLibrary<LuaTable> FormsLibrary => (FormsLuaLibrary<LuaTable>) Libraries[typeof(FormsLuaLibrary<LuaTable>)];
 
-		private EventsLuaLibrary EventsLibrary => (EventsLuaLibrary)Libraries[typeof(EventsLuaLibrary)];
+		private EventsLuaLibrary<LuaTable> EventsLibrary => (EventsLuaLibrary<LuaTable>) Libraries[typeof(EventsLuaLibrary<LuaTable>)];
 
 		public LuaDocumentation Docs { get; } = new LuaDocumentation();
 
-		private EmulationLuaLibrary EmulationLuaLibrary => (EmulationLuaLibrary)Libraries[typeof(EmulationLuaLibrary)];
+		private EmulationLuaLibrary<LuaTable> EmulationLuaLibrary => (EmulationLuaLibrary<LuaTable>) Libraries[typeof(EmulationLuaLibrary<LuaTable>)];
 
 		public string EngineName => Lua.WhichLua;
 
-		public GuiLuaLibrary GuiLibrary => (GuiLuaLibrary) Libraries[typeof(GuiLuaLibrary)];
+		public GuiLuaLibrary<LuaTable> GuiLibrary => (GuiLuaLibrary<LuaTable>) Libraries[typeof(GuiLuaLibrary<LuaTable>)];
 
 		public bool IsRebootingCore { get; set; }
 
 		public bool IsUpdateSupressed { get; set; }
 
-		private readonly IDictionary<Type, LuaLibraryBase> Libraries = new Dictionary<Type, LuaLibraryBase>();
+		private readonly IDictionary<Type, LuaLibraryBase<LuaTable>> Libraries = new Dictionary<Type, LuaLibraryBase<LuaTable>>();
 
 		private EventWaitHandle LuaWait;
 
@@ -135,7 +135,7 @@ namespace BizHawk.Client.EmuHawk
 
 		private static void LogToLuaConsole(object outputs) => _logToLuaConsoleCallback(new[] { outputs });
 
-		public NLuaTableHelper GetTableHelper() => _th;
+		public ILuaTableHelper<LuaTable> GetTableHelper() => _th;
 
 		public void Restart(IEmulatorServiceProvider newServiceProvider)
 		{
@@ -245,7 +245,12 @@ namespace BizHawk.Client.EmuHawk
 			GuiLibrary.Dispose();
 		}
 
-		public INamedLuaFunction CreateAndRegisterNamedFunction(LuaFunction function, string theEvent, Action<string> logCallback, LuaFile luaFile, string name = null)
+		public INamedLuaFunction CreateAndRegisterNamedFunction(
+			Func<IReadOnlyList<object>, IReadOnlyList<object>> function,
+			string theEvent,
+			Action<string> logCallback,
+			LuaFile luaFile,
+			string name = null)
 		{
 			var nlf = new NamedLuaFunction(function, theEvent, logCallback, luaFile, name);
 			RegisteredFunctions.Add(nlf);
@@ -295,7 +300,7 @@ namespace BizHawk.Client.EmuHawk
 
 			try
 			{
-				LuaLibraryBase.SetCurrentThread(lf);
+				LuaLibraryBase<LuaTable>.SetCurrentThread(lf);
 
 				var execResult = _currThread.Resume(0);
 
@@ -314,7 +319,7 @@ namespace BizHawk.Client.EmuHawk
 			}
 			finally
 			{
-				LuaLibraryBase.ClearCurrentThread();
+				LuaLibraryBase<LuaTable>.ClearCurrentThread();
 			}
 		}
 
@@ -333,5 +338,8 @@ namespace BizHawk.Client.EmuHawk
 		{
 			_currThread.Yield(0);
 		}
+
+		public Func<IReadOnlyList<object>, IReadOnlyList<object>> WrapFunction(object luaFunction)
+			=> args => ((LuaFunction) luaFunction).Call(args);
 	}
 }

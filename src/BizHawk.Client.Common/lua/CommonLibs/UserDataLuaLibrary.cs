@@ -5,9 +5,9 @@ using System.ComponentModel;
 namespace BizHawk.Client.Common
 {
 	[Description("A library for setting and retrieving dynamic data that will be saved and loaded with savestates")]
-	public sealed class UserDataLuaLibrary : LuaLibraryBase
+	public sealed class UserDataLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public UserDataLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public UserDataLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "userdata";

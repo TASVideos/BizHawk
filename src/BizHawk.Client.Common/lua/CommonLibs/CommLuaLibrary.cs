@@ -6,11 +6,11 @@ using System.Text;
 namespace BizHawk.Client.Common
 {
 	[Description("A library for communicating with other programs")]
-	public sealed class CommLuaLibrary : LuaLibraryBase
+	public sealed class CommLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
 		private readonly IDictionary<Guid, ClientWebSocketWrapper> _websockets = new Dictionary<Guid, ClientWebSocketWrapper>();
 
-		public CommLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public CommLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "comm";
@@ -20,7 +20,7 @@ namespace BizHawk.Client.Common
 		public static string GetLuaFunctionsList()
 		{
 			var list = new StringBuilder();
-			foreach (var function in typeof(CommLuaLibrary).GetMethods())
+			foreach (var function in typeof(CommLuaLibrary<TTable>).GetMethods())
 			{
 				list.AppendLine(function.ToString());
 			}

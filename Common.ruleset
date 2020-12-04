@@ -26,6 +26,9 @@
 		<Rule Id="MEN013" Action="Hidden" />
 	</Rules>
 	<Rules AnalyzerId="Microsoft.CodeAnalysis.FxCopAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.FxCopAnalyzers">
+		<!-- Do not declare static members on generic types -->
+		<Rule Id="CA1000" Action="Hidden" />
+
 		<!-- Types that own disposable fields should be disposable -->
 		<Rule Id="CA1001" Action="Hidden" />
 

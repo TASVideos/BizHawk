@@ -5,7 +5,7 @@ using NLua;
 
 namespace BizHawk.Client.Common
 {
-	public sealed class NLuaTableHelper
+	public sealed class NLuaTableHelper : ILuaTableHelper<LuaTable>
 	{
 		private readonly Lua _lua;
 

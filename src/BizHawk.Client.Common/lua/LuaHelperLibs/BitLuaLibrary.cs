@@ -5,9 +5,9 @@ using System.ComponentModel;
 namespace BizHawk.Client.Common
 {
 	[Description("A library for performing standard bitwise operations.")]
-	public sealed class BitLuaLibrary : LuaLibraryBase
+	public sealed class BitLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public BitLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public BitLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "bit";

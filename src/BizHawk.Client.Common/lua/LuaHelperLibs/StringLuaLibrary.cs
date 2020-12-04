@@ -1,17 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
 
-using NLua;
-
 // ReSharper disable UnusedMember.Global
 namespace BizHawk.Client.Common
 {
 	[Description("A library exposing standard .NET string methods")]
-	public sealed class StringLuaLibrary : LuaLibraryBase
+	public sealed class StringLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
 		public override string Name => "bizstring";
 
-		public StringLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public StringLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		[LuaMethodExample("local stbizhex = bizstring.hex( -12345 );")]
@@ -124,7 +122,7 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlbizspl = bizstring.split( \"Some, string\", \", \" );")]
 		[LuaMethod("split", "Splits str into a Lua-style array using the given separator (consecutive separators in str will NOT create empty entries in the array). If the separator is not a string exactly one char long, ',' will be used.")]
-		public LuaTable Split(string str, string separator) => string.IsNullOrEmpty(str)
+		public TTable Split(string str, string separator) => string.IsNullOrEmpty(str)
 			? _th.CreateTable()
 			: _th.ListToTable(str.Split(new[] { separator?.Length == 1 ? separator[0] : ',' }, StringSplitOptions.RemoveEmptyEntries), indexFrom: 1);
 	}

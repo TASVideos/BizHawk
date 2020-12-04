@@ -3,13 +3,11 @@ using System.ComponentModel;
 
 using BizHawk.Emulation.Common;
 
-using NLua;
-
 // ReSharper disable UnusedMember.Global
 namespace BizHawk.Client.Common
 {
 	[Description("Main memory library reads and writes from the Main memory domain (the default memory domain set by any given core)")]
-	public sealed class MainMemoryLuaLibrary : LuaLibraryBase
+	public sealed class MainMemoryLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
 		[RequiredService]
 		private IEmulator Emulator { get; set; }
@@ -17,7 +15,7 @@ namespace BizHawk.Client.Common
 		[OptionalService]
 		private IMemoryDomains MemoryDomainCore { get; set; }
 
-		public MainMemoryLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public MainMemoryLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "mainmemory";
@@ -61,7 +59,7 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlmairea = mainmemory.readbyterange( 0x100, 64 );")]
 		[LuaMethod("readbyterange", "Reads the address range that starts from address, and is length long. Returns the result into a table of key value pairs (where the address is the key).")]
-		public LuaTable ReadByteRange(int addr, int length)
+		public TTable ReadByteRange(int addr, int length)
 		{
 			return _th.ListToTable(APIs.Memory.ReadByteRange(addr, length, Domain.Name));
 		}
@@ -69,7 +67,7 @@ namespace BizHawk.Client.Common
 		/// <remarks>TODO C# version requires a contiguous address range</remarks>
 		[LuaMethodExample("")]
 		[LuaMethod("writebyterange", "Writes the given values to the given addresses as unsigned bytes")]
-		public void WriteByteRange(LuaTable memoryblock)
+		public void WriteByteRange(TTable memoryblock)
 		{
 #if true
 			foreach (var (addr, v) in _th.EnumerateEntries<double, double>(memoryblock))

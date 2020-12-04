@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using BizHawk.Common;
-using NLua;
 
 namespace BizHawk.Client.Common
 {
@@ -19,6 +18,6 @@ namespace BizHawk.Client.Common
 		/// <exception cref="ArithmeticException"><paramref name="d"/> ≥ 2^53 or <paramref name="d"/> ≤ -2^53</exception>
 		public static long AsInteger(this double d) => PrecisionLimits.Contains(d) ? (long) d : throw new ArithmeticException("integer value exceeds the precision of Lua's integer-as-double");
 
-		public static LuaTable EnumerateToLuaTable<T>(this NLuaTableHelper tableHelper, IEnumerable<T> list) => tableHelper.ListToTable(list.ToList());
+		public static TTable EnumerateToLuaTable<T, TTable>(this ILuaTableHelper<TTable> tableHelper, IEnumerable<T> list) => tableHelper.ListToTable(list.ToList());
 	}
 }

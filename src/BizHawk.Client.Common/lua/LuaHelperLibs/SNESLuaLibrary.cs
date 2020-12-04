@@ -8,9 +8,9 @@ using BizHawk.Emulation.Cores.Nintendo.SNES;
 namespace BizHawk.Client.Common
 {
 	[Description("Functions specific to SNESHawk (functions may not run when an SNES game is not loaded)")]
-	public sealed class SNESLuaLibrary : LuaLibraryBase
+	public sealed class SNESLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public SNESLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public SNESLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "snes";

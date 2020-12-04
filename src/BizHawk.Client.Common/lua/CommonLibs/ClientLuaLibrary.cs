@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,14 +10,13 @@ using BizHawk.Client.Common.cheats;
 using BizHawk.Common;
 using BizHawk.Emulation.Common;
 
-using NLua;
-
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedMember.Global
 namespace BizHawk.Client.Common
 {
 	[Description("A library for manipulating the EmuHawk client UI")]
-	public sealed class ClientLuaLibrary : LuaLibraryBase
+	public sealed class ClientLuaLibrary<TTable> : LuaLibraryBase<TTable>
+		where TTable : class
 	{
 		[RequiredService]
 		private IEmulator Emulator { get; set; }
@@ -26,7 +26,7 @@ namespace BizHawk.Client.Common
 
 		public IMainFormForApi MainForm { get; set; }
 
-		public ClientLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public ClientLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "client";
@@ -232,12 +232,9 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local newY = client.transform_point( 32, 100 ).y;")]
 		[LuaMethod("transformPoint", "Transforms a point (x, y) in emulator space to a point in client space")]
-		public LuaTable TransformPoint(int x, int y) {
+		public TTable TransformPoint(int x, int y) {
 			var transformed = APIs.EmuClient.TransformPoint(new Point(x, y));
-			var table = _th.CreateTable();
-			table["x"] = transformed.X;
-			table["y"] = transformed.Y;
-			return table;
+			return _th.DictToTable(new Dictionary<string, int> { ["x"] = transformed.X, ["y"] = transformed.Y });
 		}
 
 		[LuaMethodExample("client.unpause( );")]
@@ -265,11 +262,11 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlcliget = client.getavailabletools( );")]
 		[LuaMethod("getavailabletools", "Returns a list of the tools currently open")]
-		public LuaTable GetAvailableTools() => _th.EnumerateToLuaTable(APIs.Tool.AvailableTools.Select(tool => tool.Name.ToLower()));
+		public TTable GetAvailableTools() => _th.EnumerateToLuaTable(APIs.Tool.AvailableTools.Select(tool => tool.Name.ToLower()));
 
 		[LuaMethodExample("local nlcliget = client.gettool( \"Tool name\" );")]
 		[LuaMethod("gettool", "Returns an object that represents a tool of the given name (not case sensitive). If the tool is not open, it will be loaded if available. Use gettools to get a list of names")]
-		public LuaTable GetTool(string name)
+		public TTable GetTool(string name)
 		{
 			var selectedTool = APIs.Tool.GetTool(name);
 			return selectedTool == null ? null : _th.ObjectToTable(selectedTool);
@@ -277,7 +274,7 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlclicre = client.createinstance( \"objectname\" );")]
 		[LuaMethod("createinstance", "returns a default instance of the given type of object if it exists (not case sensitive). Note: This will only work on objects which have a parameterless constructor.  If no suitable type is found, or the type does not have a parameterless constructor, then nil is returned")]
-		public LuaTable CreateInstance(string name)
+		public TTable CreateInstance(string name)
 		{
 			var instance = APIs.Tool.GetTool(name);
 			return instance == null ? null : _th.ObjectToTable(instance);

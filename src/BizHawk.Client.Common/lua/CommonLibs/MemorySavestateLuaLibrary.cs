@@ -4,9 +4,9 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace BizHawk.Client.Common
 {
-	public sealed class MemorySavestateLuaLibrary : LuaLibraryBase
+	public sealed class MemorySavestateLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public MemorySavestateLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public MemorySavestateLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "memorysavestate";

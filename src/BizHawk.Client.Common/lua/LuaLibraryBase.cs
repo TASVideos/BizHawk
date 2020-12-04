@@ -4,9 +4,9 @@ using System.Threading;
 
 namespace BizHawk.Client.Common
 {
-	public abstract class LuaLibraryBase
+	public abstract class LuaLibraryBase<TTable>
 	{
-		protected LuaLibraryBase(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		protected LuaLibraryBase(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 		{
 			LogOutputCallback = logOutputCallback;
 			_luaLibsImpl = luaLibsImpl;
@@ -25,9 +25,9 @@ namespace BizHawk.Client.Common
 
 		protected readonly Action<string> LogOutputCallback;
 
-		protected readonly IPlatformLuaLibEnv _luaLibsImpl;
+		protected readonly ILuaLibEnv<TTable> _luaLibsImpl;
 
-		protected readonly NLuaTableHelper _th;
+		protected readonly ILuaTableHelper<TTable> _th;
 
 		public static void ClearCurrentThread()
 		{

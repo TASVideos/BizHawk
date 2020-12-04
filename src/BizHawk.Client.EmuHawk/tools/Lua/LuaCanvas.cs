@@ -5,19 +5,18 @@ using System.Windows.Forms;
 using System.IO;
 
 using BizHawk.Client.Common;
-using NLua;
 
 // ReSharper disable UnusedMember.Global
 namespace BizHawk.Client.EmuHawk
 {
 	[Description("Represents a canvas object returned by the gui.createcanvas() method")]
-	public sealed class LuaCanvas : Form
+	public sealed class LuaCanvas<TTable> : Form
 	{
 		private readonly Action<string> LogOutputCallback;
 
-		private readonly LuaPictureBox luaPictureBox;
+		private readonly LuaPictureBox<TTable> luaPictureBox;
 
-		public LuaCanvas(int width, int height, int? x, int? y, NLuaTableHelper tableHelper, Action<string> logOutputCallback)
+		public LuaCanvas(int width, int height, int? x, int? y, ILuaTableHelper<TTable> tableHelper, Action<string> logOutputCallback)
 		{
 			LogOutputCallback = logOutputCallback;
 
@@ -42,7 +41,7 @@ namespace BizHawk.Client.EmuHawk
 				}
 			}
 
-			luaPictureBox = new LuaPictureBox
+			luaPictureBox = new LuaPictureBox<TTable>
 			{
 				Image = Properties.Resources.LuaPictureBox,
 				Location = new Point(0, 0),
@@ -142,7 +141,7 @@ namespace BizHawk.Client.EmuHawk
 		[LuaMethod(
 			"drawBezier",
 			"Draws a Bezier curve using the table of coordinates provided in the given color")]
-		public void DrawBezier(LuaTable points, Color color)
+		public void DrawBezier(TTable points, Color color)
 		{
 			try
 			{
@@ -318,7 +317,7 @@ namespace BizHawk.Client.EmuHawk
 		[LuaMethod(
 			"drawPolygon",
 			"Draws a polygon using the table of coordinates specified in points. This should be a table of tables(each of size 2). Line is the color of the polygon. Background is the optional fill color")]
-		public void DrawPolygon(LuaTable points, int? x = null, int? y = null, Color? line = null, Color? background = null)
+		public void DrawPolygon(TTable points, int? x = null, int? y = null, Color? line = null, Color? background = null)
 		{
 			try
 			{

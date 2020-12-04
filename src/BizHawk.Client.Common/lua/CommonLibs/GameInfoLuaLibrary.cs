@@ -1,13 +1,12 @@
 ﻿using System;
-using NLua;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace BizHawk.Client.Common
 {
-	public sealed class GameInfoLuaLibrary : LuaLibraryBase
+	public sealed class GameInfoLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public GameInfoLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public GameInfoLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "gameinfo";
@@ -38,6 +37,6 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlgamget = gameinfo.getoptions( );")]
 		[LuaMethod("getoptions", "returns the game options for the currently loaded rom. Options vary per platform")]
-		public LuaTable GetOptions() => _th.DictToTable(APIs.GameInfo.GetOptions());
+		public TTable GetOptions() => _th.DictToTable(APIs.GameInfo.GetOptions());
 	}
 }

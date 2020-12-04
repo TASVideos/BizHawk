@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 using NLua;
 
 using BizHawk.Emulation.Common;
@@ -7,9 +9,9 @@ namespace BizHawk.Client.Common
 {
 	public sealed class NamedLuaFunction : INamedLuaFunction
 	{
-		private readonly LuaFunction _function;
+		private readonly Func<IReadOnlyList<object>, IReadOnlyList<object>> _function;
 
-		public NamedLuaFunction(LuaFunction function, string theEvent, Action<string> logCallback, LuaFile luaFile, string name = null)
+		public NamedLuaFunction(Func<IReadOnlyList<object>, IReadOnlyList<object>> function, string theEvent, Action<string> logCallback, LuaFile luaFile, string name = null)
 		{
 			_function = function;
 			Name = name ?? "Anonymous";
@@ -36,7 +38,7 @@ namespace BizHawk.Client.Common
 			{
 				try
 				{
-					_function.Call();
+					_function(Array.Empty<object>());
 				}
 				catch (Exception ex)
 				{
@@ -74,7 +76,7 @@ namespace BizHawk.Client.Common
 		{
 			LuaSandbox.Sandbox(LuaFile.Thread, () =>
 			{
-				_function.Call(name);
+				_function(new object[] { name });
 			});
 		}
 	}

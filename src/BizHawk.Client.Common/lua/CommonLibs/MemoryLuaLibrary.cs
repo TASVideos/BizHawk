@@ -1,22 +1,20 @@
 ﻿using System;
 using System.ComponentModel;
 
-using NLua;
-
 // ReSharper disable UnusedMember.Global
 namespace BizHawk.Client.Common
 {
 	[Description("These functions behavior identically to the mainmemory functions but the user can set the memory domain to read and write from. The default domain is the system bus. Use getcurrentmemorydomain(), and usememorydomain() to control which domain is used. Each core has its own set of valid memory domains. Use getmemorydomainlist() to get a list of memory domains for the current core loaded.")]
-	public sealed class MemoryLuaLibrary : LuaLibraryBase
+	public sealed class MemoryLuaLibrary<TTable> : LuaLibraryBase<TTable>
 	{
-		public MemoryLuaLibrary(IPlatformLuaLibEnv luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
+		public MemoryLuaLibrary(ILuaLibEnv<TTable> luaLibsImpl, ApiContainer apiContainer, Action<string> logOutputCallback)
 			: base(luaLibsImpl, apiContainer, logOutputCallback) {}
 
 		public override string Name => "memory";
 
 		[LuaMethodExample("local nlmemget = memory.getmemorydomainlist();")]
 		[LuaMethod("getmemorydomainlist", "Returns a string of the memory domains for the loaded platform core. List will be a single string delimited by line feeds")]
-		public LuaTable GetMemoryDomainList() => _th.ListToTable(APIs.Memory.GetMemoryDomainList());
+		public TTable GetMemoryDomainList() => _th.ListToTable(APIs.Memory.GetMemoryDomainList());
 
 		[LuaMethodExample("local uimemget = memory.getmemorydomainsize( mainmemory.getname( ) );")]
 		[LuaMethod("getmemorydomainsize", "Returns the number of bytes of the specified memory domain. If no domain is specified, or the specified domain doesn't exist, returns the current domain size")]
@@ -48,12 +46,12 @@ namespace BizHawk.Client.Common
 
 		[LuaMethodExample("local nlmemrea = memory.readbyterange( 0x100, 30, mainmemory.getname( ) );")]
 		[LuaMethod("readbyterange", "Reads the address range that starts from address, and is length long. Returns the result into a table of key value pairs (where the address is the key).")]
-		public LuaTable ReadByteRange(int addr, int length, string domain = null) => _th.ListToTable(APIs.Memory.ReadByteRange(addr, length, domain));
+		public TTable ReadByteRange(int addr, int length, string domain = null) => _th.ListToTable(APIs.Memory.ReadByteRange(addr, length, domain));
 
 		/// <remarks>TODO C# version requires a contiguous address range</remarks>
 		[LuaMethodExample("")]
 		[LuaMethod("writebyterange", "Writes the given values to the given addresses as unsigned bytes")]
-		public void WriteByteRange(LuaTable memoryblock, string domain = null)
+		public void WriteByteRange(TTable memoryblock, string domain = null)
 		{
 #if true
 			foreach (var (addr, v) in _th.EnumerateEntries<double, double>(memoryblock))
