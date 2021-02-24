@@ -170,7 +170,7 @@ namespace BizHawk.Client.EmuHawk
 
 			// populate ListView from firmware DB
 			var groups = new Dictionary<string, ListViewGroup>();
-			foreach (var fr in FirmwareDatabase.FirmwareRecords)
+			foreach (var fr in FirmwareDatabase.Instance.FirmwareRecords)
 			{
 				var sysID = fr.ID.System;
 				var lvi = new ListViewItem
@@ -373,7 +373,7 @@ namespace BizHawk.Client.EmuHawk
 
 			Manager.DoScanAndResolve(_pathEntries, _firmwareUserSpecifications);
 
-			foreach (var fr in FirmwareDatabase.FirmwareRecords)
+			foreach (var fr in FirmwareDatabase.Instance.FirmwareRecords)
 			{
 				var ri = Manager.Resolve(_pathEntries, _firmwareUserSpecifications, fr);
 				if (ri?.KnownFirmwareFile == null) continue;
@@ -528,7 +528,7 @@ namespace BizHawk.Client.EmuHawk
 			var fr = (FirmwareRecord) lvi.Tag;
 
 			// get all options for this firmware (in order)
-			var options = FirmwareDatabase.FirmwareOptions.Where(fo => fo.ID == fr.ID);
+			var options = FirmwareDatabase.Instance.FirmwareOptions.Where(fo => fo.ID == fr.ID);
 
 			var fciDialog = new FirmwaresConfigInfo
 			{
@@ -545,7 +545,7 @@ namespace BizHawk.Client.EmuHawk
 				olvi.SubItems.Add(new ListViewItem.ListViewSubItem());
 				olvi.SubItems.Add(new ListViewItem.ListViewSubItem());
 				olvi.SubItems.Add(new ListViewItem.ListViewSubItem());
-				var ff = FirmwareDatabase.FirmwareFilesByHash[o.Hash];
+				var ff = FirmwareDatabase.Instance.FirmwareFilesByHash[o.Hash];
 				if (o.Status == FirmwareOptionStatus.Ideal)
 				{
 					olvi.ImageIndex = FirmwaresConfigInfo.idIdeal;

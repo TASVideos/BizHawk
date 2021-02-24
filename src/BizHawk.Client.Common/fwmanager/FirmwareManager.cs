@@ -13,6 +13,8 @@ namespace BizHawk.Client.Common
 {
 	public sealed class FirmwareManager
 	{
+		private static FirmwareDatabase DB => FirmwareDatabase.Instance;
+
 		private static readonly FirmwareID NDS_FIRMWARE = new("NDS", "firmware");
 
 		private readonly IReadOnlyCollection<long> _firmwareSizes;
@@ -25,7 +27,7 @@ namespace BizHawk.Client.Common
 
 		public FirmwareManager()
 		{
-			_firmwareSizes = new HashSet<long>(FirmwareDatabase.FirmwareFiles.Select(ff => ff.Size)); // build a list of expected file sizes, used as a simple filter to speed up scanning
+			_firmwareSizes = new HashSet<long>(DB.FirmwareFiles.Select(ff => ff.Size)); // build a list of expected file sizes, used as a simple filter to speed up scanning
 		}
 
 		/// <remarks>
@@ -50,7 +52,7 @@ namespace BizHawk.Client.Common
 			var resolved = Resolve(
 				pathEntries,
 				userSpecifications,
-				FirmwareDatabase.FirmwareRecords.First(fr => fr.ID == id));
+				DB.FirmwareRecords.First(fr => fr.ID == id));
 			if (resolved == null) return null;
 			RecentlyServed.Add(new(id, resolved.Hash, resolved.Size));
 			return resolved.FilePath;
@@ -91,13 +93,13 @@ namespace BizHawk.Client.Common
 				if (!fi.Exists) return false;
 
 				// weed out filesizes first to reduce the unnecessary overhead of a hashing operation
-				if (FirmwareDatabase.FirmwareFiles.All(a => a.Size != fi.Length)) return false;
+				if (DB.FirmwareFiles.All(a => a.Size != fi.Length)) return false;
 
 				// check the hash
 				using var reader = new RealFirmwareReader();
 				reader.Read(fi);
 				var hash = reader.Dict.Values.First().Hash;
-				return FirmwareDatabase.FirmwareFiles.Any(a => a.Hash == hash);
+				return DB.FirmwareFiles.Any(a => a.Hash == hash);
 			}
 			catch
 			{
@@ -122,14 +124,14 @@ namespace BizHawk.Client.Common
 			}
 
 			// now, for each firmware record, try to resolve it
-			foreach (var fr in FirmwareDatabase.FirmwareRecords)
+			foreach (var fr in DB.FirmwareRecords)
 			{
 				_resolutionDictionary.Remove(fr); // clear previous resolution results
 				FirmwareOption fo;
 				try
 				{
 					// check each acceptable option for this firmware, looking for the first that's in the reader's file list
-					fo = FirmwareDatabase.FirmwareOptions.First(fo1 => fo1.ID == fr.ID && fo1.IsAcceptableOrIdeal
+					fo = DB.FirmwareOptions.First(fo1 => fo1.ID == fr.ID && fo1.IsAcceptableOrIdeal
 						&& reader.Dict.ContainsKey(fo1.Hash));
 				}
 				catch (InvalidOperationException)
@@ -140,14 +142,14 @@ namespace BizHawk.Client.Common
 				_resolutionDictionary[fr] = new ResolutionInfo
 				{
 					FilePath = reader.Dict[fo.Hash].FileInfo.FullName,
-					KnownFirmwareFile = FirmwareDatabase.FirmwareFilesByHash[fo.Hash],
+					KnownFirmwareFile = DB.FirmwareFilesByHash[fo.Hash],
 					Hash = fo.Hash,
 					Size = fo.Size
 				};
 			}
 
 			// apply user overrides
-			foreach (var fr in FirmwareDatabase.FirmwareRecords)
+			foreach (var fr in DB.FirmwareRecords)
 			{
 				// do we have a user specification for this firmware record?
 				if (!userSpecifications.TryGetValue(fr.ID.ConfigKey, out var userSpec)) continue;
@@ -182,12 +184,12 @@ namespace BizHawk.Client.Common
 				ri.Hash = rff.Hash;
 
 				// check whether it was a known file anyway, and go ahead and bind to the known file, as a perk (the firmwares config doesn't really use this information right now)
-				if (FirmwareDatabase.FirmwareFilesByHash.TryGetValue(rff.Hash, out var ff))
+				if (DB.FirmwareFilesByHash.TryGetValue(rff.Hash, out var ff))
 				{
 					ri.KnownFirmwareFile = ff;
 
 					// if the known firmware file is for a different firmware, flag it so we can show a warning
-					if (FirmwareDatabase.FirmwareOptions.Any(fo => fo.Hash == rff.Hash && fo.ID != fr.ID))
+					if (DB.FirmwareOptions.Any(fo => fo.Hash == rff.Hash && fo.ID != fr.ID))
 					{
 						ri.KnownMismatching = true;
 					}
