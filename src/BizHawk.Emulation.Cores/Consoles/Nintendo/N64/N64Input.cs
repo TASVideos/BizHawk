@@ -18,7 +18,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.N64
 			_emuCore = emuCore;
 			_api = new mupen64plusInputApi(core);
 
-			_api.SetM64PInputCallback(GetControllerInput);
+			_api.SetM64PInputCallbacks(GetControllerInput, SetRumble);
 
 			core.VInterrupt += ShiftInputPolledBools;
 			for (int i = 0; i < controllerSettings.Length; ++i)
@@ -85,6 +85,9 @@ namespace BizHawk.Emulation.Cores.Nintendo.N64
 			value |= (y & 0xFF) << 24;
 			return value;
 		}
+
+		private void SetRumble(int player, int bIsActive)
+			=> Controller.SetHapticChannelStrength($"P{player} Rumble Pak", bIsActive == 0 ? 0 : int.MaxValue);
 
 		/// <summary>
 		/// Read all buttons from a controller and translate them

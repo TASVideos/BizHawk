@@ -424,6 +424,7 @@ EXPORT void CALL SetInputCallback(int (*inputCallback)(int i))
    ---------------------------------------------------------------------- */
 EXPORT void CALL SetRumbleCallback(void (*rumbleCallback)(int Control, int on))
 {
+	l_setrumbleCallback = rumbleCallback;
 }
 
 /* ----------------------------------------------------------------------
