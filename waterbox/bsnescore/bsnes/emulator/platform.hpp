@@ -27,6 +27,9 @@ struct Platform {
 
   bool traceEnabled = false;
   virtual auto cpuTrace(vector<string>) -> void {}
+  virtual auto readHook(uint address) -> void {}
+  virtual auto writeHook(uint address, uint8 value) -> void {}
+  virtual auto execHook(uint address) -> void {}
 };
 
 extern Platform* platform;

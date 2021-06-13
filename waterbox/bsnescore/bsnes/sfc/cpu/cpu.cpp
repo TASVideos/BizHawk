@@ -36,6 +36,7 @@ auto CPU::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
   if(!status.interruptPending) {
+    platform->execHook(cpu.r.pc.d);
     if (platform->traceEnabled) {
       vector<string> disassembly = disassemble();
       disassembly[1].append(" V:", hex(cpu.vcounter(), 3), " H:", hex(cpu.hdot(), 3));
