@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using BizHawk.Client.Common;
+using BizHawk.WinForms.Controls;
 
 namespace BizHawk.Client.EmuHawk
 {
@@ -53,7 +54,7 @@ namespace BizHawk.Client.EmuHawk
 			cbConsiderLag.Checked = _config.AutofireLagFrames;
 		}
 
-		private void btnDialogOK_Click(object sender, EventArgs e)
+		private void btnDialogOK_Click(ButtonExBase sender, EventArgs e)
 		{
 			_autoFireController.On = _config.AutofireOn = (int)nudPatternOn.Value;
 			_autoFireController.Off = _config.AutofireOff = (int)nudPatternOff.Value;
@@ -64,7 +65,7 @@ namespace BizHawk.Client.EmuHawk
 			Close();
 		}
 
-		private void btnDialogCancel_Click(object sender, EventArgs e)
+		private void btnDialogCancel_Click(ButtonExBase sender, EventArgs e)
 		{
 			DialogResult = DialogResult.Cancel;
 			Close();

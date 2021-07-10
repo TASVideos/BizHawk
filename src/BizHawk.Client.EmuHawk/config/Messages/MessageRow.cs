@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 
 using BizHawk.Client.Common;
+using BizHawk.WinForms.Controls;
 
 namespace BizHawk.Client.EmuHawk
 {
@@ -44,9 +45,9 @@ namespace BizHawk.Client.EmuHawk
 			LocationLabel.Text = MessagePosition.ToCoordinateStr();
 		}
 
-		private void RowRadio_CheckedChanged(object sender, EventArgs e)
+		private void RowRadio_CheckedChanged(ICheckBoxOrRadioEx sender, EventArgs e)
 		{
-			if (!_programmaticallyUpdating && RowRadio.Checked)
+			if (!_programmaticallyUpdating && sender.Checked)
 			{
 				_selectedCallback.Invoke(MessagePosition);
 			}
