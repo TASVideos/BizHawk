@@ -89,6 +89,8 @@ namespace BizHawk.Client.Common
 			_mainForm.FrameSkipMessage();
 		}
 
+		public int GetApproxFramerate() => _mainForm.GetApproxFramerate();
+
 		public bool GetSoundOn() => _config.SoundEnabled;
 
 		public int GetTargetScanlineIntensity() => _config.TargetScanlineFilterIntensity;

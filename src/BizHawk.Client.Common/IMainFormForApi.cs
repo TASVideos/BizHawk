@@ -59,6 +59,9 @@ namespace BizHawk.Client.Common
 
 		void FrameSkipMessage();
 
+		/// <remarks>only referenced from <see cref="EmuClientApi"/></remarks>
+		int GetApproxFramerate();
+
 		/// <remarks>only referenced from <see cref="SaveStateApi"/></remarks>
 		void LoadQuickSave(string quickSlotName, bool suppressOSD = false);
 

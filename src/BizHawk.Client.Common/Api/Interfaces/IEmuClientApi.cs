@@ -63,6 +63,9 @@ namespace BizHawk.Client.Common
 
 		void FrameSkip(int numFrames);
 
+		/// <returns>the (host) framerate, approximated from frame durations</returns>
+		int GetApproxFramerate();
+
 		bool GetSoundOn();
 
 		int GetTargetScanlineIntensity();
