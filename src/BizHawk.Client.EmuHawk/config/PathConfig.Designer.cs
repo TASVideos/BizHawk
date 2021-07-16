@@ -36,6 +36,13 @@
 			this.SpecialCommandsBtn = new System.Windows.Forms.Button();
 			this.RecentForROMs = new System.Windows.Forms.CheckBox();
 			this.DefaultsBtn = new System.Windows.Forms.Button();
+			this.tcMain = new System.Windows.Forms.TabControl();
+			this.tpGlobal = new System.Windows.Forms.TabPage();
+			this.tpSystems = new System.Windows.Forms.TabPage();
+			this.comboSystem = new System.Windows.Forms.ComboBox();
+			this.lblSystem = new BizHawk.WinForms.Controls.LocLabelEx();
+			this.tcMain.SuspendLayout();
+			this.tpSystems.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// Ok
@@ -66,11 +73,14 @@
 			this.PathTabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.PathTabControl.Location = new System.Drawing.Point(12, 41);
+			this.PathTabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+			this.PathTabControl.ItemSize = new System.Drawing.Size(0, 1);
+			this.PathTabControl.Location = new System.Drawing.Point(6, 31);
 			this.PathTabControl.Multiline = true;
 			this.PathTabControl.Name = "PathTabControl";
 			this.PathTabControl.SelectedIndex = 0;
-			this.PathTabControl.Size = new System.Drawing.Size(760, 458);
+			this.PathTabControl.Size = new System.Drawing.Size(747, 401);
+			this.PathTabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
 			this.PathTabControl.TabIndex = 2;
 			// 
 			// SaveBtn
@@ -123,6 +133,58 @@
 			this.DefaultsBtn.UseVisualStyleBackColor = true;
 			this.DefaultsBtn.Click += new System.EventHandler(this.DefaultsBtn_Click);
 			// 
+			// tcMain
+			// 
+			this.tcMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tcMain.Controls.Add(this.tpGlobal);
+			this.tcMain.Controls.Add(this.tpSystems);
+			this.tcMain.Location = new System.Drawing.Point(12, 41);
+			this.tcMain.Name = "tcMain";
+			this.tcMain.SelectedIndex = 0;
+			this.tcMain.Size = new System.Drawing.Size(760, 458);
+			this.tcMain.TabIndex = 213;
+			// 
+			// tpGlobal
+			// 
+			this.tpGlobal.AutoScroll = true;
+			this.tpGlobal.Location = new System.Drawing.Point(4, 22);
+			this.tpGlobal.Name = "tpGlobal";
+			this.tpGlobal.Padding = new System.Windows.Forms.Padding(3);
+			this.tpGlobal.Size = new System.Drawing.Size(752, 432);
+			this.tpGlobal.TabIndex = 0;
+			this.tpGlobal.Text = "Global";
+			this.tpGlobal.UseVisualStyleBackColor = true;
+			// 
+			// tpSystems
+			// 
+			this.tpSystems.Controls.Add(this.lblSystem);
+			this.tpSystems.Controls.Add(this.comboSystem);
+			this.tpSystems.Controls.Add(this.PathTabControl);
+			this.tpSystems.Location = new System.Drawing.Point(4, 22);
+			this.tpSystems.Name = "tpSystems";
+			this.tpSystems.Padding = new System.Windows.Forms.Padding(3);
+			this.tpSystems.Size = new System.Drawing.Size(752, 432);
+			this.tpSystems.TabIndex = 1;
+			this.tpSystems.Text = "by System";
+			this.tpSystems.UseVisualStyleBackColor = true;
+			// 
+			// comboSystem
+			// 
+			this.comboSystem.FormattingEnabled = true;
+			this.comboSystem.Location = new System.Drawing.Point(48, 4);
+			this.comboSystem.Name = "comboSystem";
+			this.comboSystem.Size = new System.Drawing.Size(200, 21);
+			this.comboSystem.TabIndex = 3;
+			this.comboSystem.SelectedIndexChanged += new System.EventHandler(this.comboSystem_SelectedIndexChanged);
+			// 
+			// lblSystem
+			// 
+			this.lblSystem.Location = new System.Drawing.Point(3, 7);
+			this.lblSystem.Name = "lblSystem";
+			this.lblSystem.Text = "System:";
+			// 
 			// PathConfig
 			// 
 			this.AcceptButton = this.Ok;
@@ -130,12 +192,12 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.Cancel;
 			this.ClientSize = new System.Drawing.Size(784, 540);
+			this.Controls.Add(this.tcMain);
 			this.Controls.Add(this.DefaultsBtn);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.SpecialCommandsBtn);
 			this.Controls.Add(this.RecentForROMs);
 			this.Controls.Add(this.SaveBtn);
-			this.Controls.Add(this.PathTabControl);
 			this.Controls.Add(this.Cancel);
 			this.Controls.Add(this.Ok);
 			this.MinimumSize = new System.Drawing.Size(360, 250);
@@ -144,6 +206,9 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Path Configuration";
 			this.Load += new System.EventHandler(this.NewPathConfig_Load);
+			this.tcMain.ResumeLayout(false);
+			this.tpSystems.ResumeLayout(false);
+			this.tpSystems.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -159,5 +224,10 @@
 		private System.Windows.Forms.Button SpecialCommandsBtn;
 		private System.Windows.Forms.CheckBox RecentForROMs;
 		private System.Windows.Forms.Button DefaultsBtn;
+		private System.Windows.Forms.TabControl tcMain;
+		private System.Windows.Forms.TabPage tpGlobal;
+		private System.Windows.Forms.TabPage tpSystems;
+		private System.Windows.Forms.ComboBox comboSystem;
+		private WinForms.Controls.LocLabelEx lblSystem;
 	}
 }
