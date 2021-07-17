@@ -631,6 +631,14 @@ namespace BizHawk.Client.EmuHawk
 			_searches.SetPreviousType(type);
 		}
 
+		private void HandleWatchSizeSelected(WatchSize newWatchSize)
+		{
+			if (_settings.Size != newWatchSize)
+			{
+				SetSize(newWatchSize);
+			}
+		}
+
 		private void SetSize(WatchSize size)
 		{
 			_settings.Size = size;
@@ -1124,17 +1132,17 @@ namespace BizHawk.Client.EmuHawk
 
 		private void ByteMenuItem_Click(object sender, EventArgs e)
 		{
-			SetSize(WatchSize.Byte);
+			HandleWatchSizeSelected(WatchSize.Byte);
 		}
 
 		private void WordMenuItem_Click(object sender, EventArgs e)
 		{
-			SetSize(WatchSize.Word);
+			HandleWatchSizeSelected(WatchSize.Word);
 		}
 
 		private void DWordMenuItem_Click_Click(object sender, EventArgs e)
 		{
-			SetSize(WatchSize.DWord);
+			HandleWatchSizeSelected(WatchSize.DWord);
 		}
 
 		private void CheckMisalignedMenuItem_Click(object sender, EventArgs e)
@@ -1419,7 +1427,7 @@ namespace BizHawk.Client.EmuHawk
 				return;
 			}
 
-			SetSize(SelectedSize);
+			HandleWatchSizeSelected(SelectedSize);
 		}
 
 		private void DisplayTypeDropdown_SelectedIndexChanged(object sender, EventArgs e)
