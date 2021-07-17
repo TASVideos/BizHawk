@@ -149,7 +149,9 @@ namespace BizHawk.Emulation.Cores.Consoles.Nintendo.VB
 				SideBySide = 2,
 				//OverUnder,
 				VerticalInterlaced = 4,
-				HorizontalInterlaced = 5
+				HorizontalInterlaced = 5,
+				OnlyLeft = 6,
+				OnlyRight = 7
 			}
 
 			[DefaultValue(ThreeDeeModes.Anaglyph)]

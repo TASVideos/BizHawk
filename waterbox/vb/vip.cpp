@@ -57,6 +57,7 @@ static void CopyFBColumnToTarget_CScope(void) NO_INLINE;
 static void CopyFBColumnToTarget_SideBySide(void) NO_INLINE;
 static void CopyFBColumnToTarget_VLI(void) NO_INLINE;
 static void CopyFBColumnToTarget_HLI(void) NO_INLINE;
+static void CopyFBColumnToTarget_OnlyLeftRight(void) NO_INLINE;
 static void (*CopyFBColumnToTarget)(void) = NULL;
 static float VBLEDOnScale;
 static uint32 VB3DMode;
@@ -230,6 +231,11 @@ static void Recalc3DModeStuff(bool non_rgb_output = false)
 
 	case VB3DMODE_HLI:
 		CopyFBColumnToTarget = CopyFBColumnToTarget_HLI;
+		break;
+
+	case VB3DMODE_ONLYLEFT:
+	case VB3DMODE_ONLYRIGHT:
+		CopyFBColumnToTarget = CopyFBColumnToTarget_OnlyLeftRight;
 		break;
 	}
 	RecalcBrightnessCache();
@@ -1259,6 +1265,26 @@ static void CopyFBColumnToTarget_HLI(void)
 			CopyFBColumnToTarget_HLI_BASE(1, 0, 0 ^ VB3DReverse);
 		else
 			CopyFBColumnToTarget_HLI_BASE(1, 1, 1 ^ VB3DReverse);
+	}
+}
+
+static void CopyFBColumnToTarget_OnlyLeftRight(void)
+{
+	const int lr = (VB3DMode == VB3DMODE_ONLYLEFT ? 0 : 1);
+
+	if (!DisplayActive)
+	{
+		if (!lr)
+			CopyFBColumnToTarget_SideBySide_BASE(0, 0, 0);
+		else
+			CopyFBColumnToTarget_SideBySide_BASE(0, 1, 0);
+	}
+	else
+	{
+		if (!lr)
+			CopyFBColumnToTarget_SideBySide_BASE(1, 0, 0);
+		else
+			CopyFBColumnToTarget_SideBySide_BASE(1, 1, 0);
 	}
 }
 
