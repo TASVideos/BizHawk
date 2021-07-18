@@ -56,7 +56,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 		private readonly byte[] image = new byte[160 * 200];
 		private ushort image_offset;
 
-		private byte compression_run_lenth;
+		private byte compression_run_length;
 		private bool compression_run_is_compressed;
 
 		public GambattePrinter(Gameboy gb, PrinterCallback callback)
@@ -136,27 +136,27 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 					{
 						if (compression)
 						{
-							if (compression_run_lenth == 0)
+							if (compression_run_length == 0)
 							{
 								compression_run_is_compressed = (byte_received & 0x80) != 0;
-								compression_run_lenth = (byte)((byte_received & 0x7F) + 1 + (compression_run_is_compressed ? 1 : 0));
+								compression_run_length = (byte)((byte_received & 0x7F) + 1 + (compression_run_is_compressed ? 1 : 0));
 							}
 							else if (compression_run_is_compressed)
 							{
-								while (compression_run_lenth > 0)
+								while (compression_run_length > 0)
 								{
 									command_data[command_length++] = byte_received;
-									compression_run_lenth--;
+									compression_run_length--;
 									if (command_length == GB_PRINTER_MAX_COMMAND_LENGTH)
 									{
-										compression_run_lenth = 0;
+										compression_run_length = 0;
 									}
 								}
 							}
 							else
 							{
 								command_data[command_length++] = byte_received;
-								compression_run_lenth--;
+								compression_run_length--;
 							}
 						}
 						else

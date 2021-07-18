@@ -432,8 +432,16 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 		/// <param name="dest">length of at least 10, please</param>
 		[DllImport("libgambatte.dll", CallingConvention = CallingConvention.Cdecl)]
 		public static extern void gambatte_getregs(IntPtr core, int[] dest);
+		
+		/// <summary>
+		/// set reg and flag values
+		/// </summary>
+		/// <param name="core">opaque state pointer</param>
+		/// <param name="src">length of at least 10, please</param>
+		[DllImport("libgambatte.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void gambatte_setregs(IntPtr core, int[] src);
 
-		public enum RegIndicies : int
+		public enum RegIndices : int
 		{
 			PC, SP, A, B, C, D, E, F, H, L
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using BizHawk.Common;
 using BizHawk.Common.BufferExtensions;
@@ -47,7 +48,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 			try
 			{
-				_syncSettings = (GambatteSyncSettings)syncSettings ?? new GambatteSyncSettings();
+				_syncSettings = syncSettings ?? new GambatteSyncSettings();
 
 				LibGambatte.LoadFlags flags = 0;
 
@@ -98,6 +99,10 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 				}
 				else
 				{
+					if (DeterministicEmulation) // throw a warning if a movie is being recorded with the bios disabled
+					{
+						comm.ShowMessage("Detected disabled BIOS during movie recording. It is recommended to use a BIOS for movie recording. Change Sync Settings to run with a BIOS.");
+					}
 					flags |= LibGambatte.LoadFlags.NO_BIOS;
 				}
 
@@ -297,27 +302,19 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 			_inputCallbacks = ics;
 		}
 
+		// needs to match the reverse order of Libgambatte's button enum
+		static readonly IReadOnlyList<String> BUTTON_ORDER_IN_BITMASK = new string[] { "Down", "Up", "Left", "Right", "Start", "Select", "B", "A" };
+
 		internal void FrameAdvancePrep(IController controller)
 		{
 			// update our local copy of the controller data
-			CurrentButtons = 0;
-
-			if (controller.IsPressed("Up"))
-				CurrentButtons |= LibGambatte.Buttons.UP;
-			if (controller.IsPressed("Down"))
-				CurrentButtons |= LibGambatte.Buttons.DOWN;
-			if (controller.IsPressed("Left"))
-				CurrentButtons |= LibGambatte.Buttons.LEFT;
-			if (controller.IsPressed("Right"))
-				CurrentButtons |= LibGambatte.Buttons.RIGHT;
-			if (controller.IsPressed("A"))
-				CurrentButtons |= LibGambatte.Buttons.A;
-			if (controller.IsPressed("B"))
-				CurrentButtons |= LibGambatte.Buttons.B;
-			if (controller.IsPressed("Select"))
-				CurrentButtons |= LibGambatte.Buttons.SELECT;
-			if (controller.IsPressed("Start"))
-				CurrentButtons |= LibGambatte.Buttons.START;
+			byte b = 0;
+			for (var i = 0; i < 8; i++)
+			{
+				b <<= 1;
+				if (controller.IsPressed(BUTTON_ORDER_IN_BITMASK[i])) b |= 1;
+			}
+			CurrentButtons = (LibGambatte.Buttons)b;
 
 			// the controller callback will set this to false if it actually gets called during the frame
 			IsLagFrame = true;

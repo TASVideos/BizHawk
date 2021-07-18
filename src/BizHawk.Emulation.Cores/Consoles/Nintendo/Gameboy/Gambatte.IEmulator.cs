@@ -64,7 +64,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 				case GambatteSyncSettings.FrameLengthType.UserDefinedFrames:
 					while (true)
 					{
-						// target number of samples to emit: input length minus whatever overflow
+						// target number of samples to emit: input length
 						float inputFrameLength = controller.AxisValue("Input Length");
 						uint inputFrameLengthInt = (uint)Math.Floor(inputFrameLength);
 						if (inputFrameLengthInt == 0)
@@ -89,7 +89,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 						if (frameOverflow >= inputFrameLengthInt)
 						{
-							frameOverflow -= inputFrameLengthInt;
+							frameOverflow = 0;
 							break;
 						}
 					}

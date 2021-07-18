@@ -17,6 +17,17 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 
 		public int[] GetVideoBuffer() => VideoBuffer;
 
-		private readonly int[] VideoBuffer = new int[160 * 2 * 144];
+		private readonly int[] VideoBuffer = CreateVideoBuffer();
+		
+		private static int[] CreateVideoBuffer()
+		{
+			var b = new int[160 * 2 * 144];
+			for (int i = 0; i < (160 * 2 * 144); i++)
+			{
+				b[i] = -1; // GB/C screen is disabled on bootup, so it always starts as white, not black
+			}
+			return b;
+		}
+
 	}
 }

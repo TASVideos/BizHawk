@@ -14,13 +14,27 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 		{
 			int[] s = new int[14];
 			System.Runtime.InteropServices.Marshal.Copy(_s, s, 0, 14);
+			ushort PC = (ushort)s[1];
 
 			Tracer.Put(new TraceInfo
 			{
 				Disassembly =
 					LR35902.Disassemble(
-						(ushort) s[1],
-						addr => (addr == (ushort)s[1]) ? (byte)((s[12] >> 16) & 0xFF) : ((addr == (ushort)s[1] + 1) ? (byte)((s[12] >> 8) & 0xFF) : (byte)(s[12] & 0xFF)),
+						PC,
+						addr => {
+							if (addr == PC) {
+								//opcode
+								return (byte)((s[12] >> 16) & 0xFF);
+							} else {
+								if (addr == PC + 1) {
+									//high operand
+									return (byte)((s[12] >> 8) & 0xFF);
+								} else {
+									//low operand
+									return (byte)(s[12] & 0xFF);
+								}
+							}
+						},
 						_settings.RgbdsSyntax,
 						out _).PadRight(36),
 				RegisterInfo =
@@ -37,7 +51,7 @@ namespace BizHawk.Emulation.Cores.Nintendo.Gameboy
 					s[8] & 0xff,
 					s[9] & 0xff,
 					s[10] & 0xff,
-					s[11] != 0 ? "skip" : "",
+					s[11] != 0 ? "prefetched" : "",
 					s[12] & 0xffffff,
 					s[13] & 0xff)
 			});
