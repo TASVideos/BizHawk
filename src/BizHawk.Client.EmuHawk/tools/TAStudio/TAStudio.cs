@@ -30,7 +30,6 @@ namespace BizHawk.Client.EmuHawk
 		private readonly List<TasClipboardEntry> _tasClipboard = new List<TasClipboardEntry>();
 		private const string CursorColumnName = "CursorColumn";
 		private const string FrameColumnName = "FrameColumn";
-		private BackgroundWorker _seekBackgroundWorker;
 		private MovieEndAction _originalEndAction; // The movie end behavior selected by the user (that is overridden by TAStudio)
 		private UndoHistoryForm _undoForm;
 		private Timer _autosaveTimer;
@@ -118,8 +117,6 @@ namespace BizHawk.Client.EmuHawk
 			TASEditorManualOnlineMenuItem.Image = Resources.Help;
 			ForumThreadMenuItem.Image = Resources.TAStudio;
 			Icon = Resources.TAStudioIcon;
-
-			InitializeSeekWorker();
 
 			_defaultMainSplitDistance = MainVertialSplit.SplitterDistance;
 			_defaultBranchMarkerSplitDistance = BranchesMarkersSplit.SplitterDistance;
@@ -319,62 +316,6 @@ namespace BizHawk.Client.EmuHawk
 					SaveTas();
 				}
 			}
-		}
-
-		private void InitializeSeekWorker()
-		{
-			_seekBackgroundWorker?.Dispose();
-			_seekBackgroundWorker = new BackgroundWorker
-			{
-				WorkerReportsProgress = true,
-				WorkerSupportsCancellation = true
-			};
-
-			_seekBackgroundWorker.DoWork += (s, e) =>
-			{
-				this.Invoke(() => MessageStatusLabel.Text = "Seeking...");
-				this.Invoke(() => SavingProgressBar.Visible = true);
-				for (;;)
-				{
-					if (_seekBackgroundWorker.CancellationPending || !IsHandleCreated || !MainForm.PauseOnFrame.HasValue)
-					{
-						e.Cancel = true;
-						break;
-					}
-
-					int diff = Emulator.Frame - _seekStartFrame.Value;
-					int unit = MainForm.PauseOnFrame.Value - _seekStartFrame.Value;
-					double progress = 0;
-
-					if (diff != 0 && unit != 0)
-					{
-						progress = (double)100d / unit * diff;
-					}
-
-					if (progress < 0)
-					{
-						progress = 0;
-					}
-					else if (progress > 100)
-					{
-						progress = 100;
-					}
-
-					_seekBackgroundWorker.ReportProgress((int)progress);
-					System.Threading.Thread.Sleep(1);
-				}
-			};
-
-			_seekBackgroundWorker.ProgressChanged += (s, e) =>
-			{
-				this.Invoke(() => SavingProgressBar.Value = e.ProgressPercentage);
-			};
-
-			_seekBackgroundWorker.RunWorkerCompleted += (s, e) =>
-			{
-				this.Invoke(() => SavingProgressBar.Visible = false);
-				this.Invoke(() => MessageStatusLabel.Text = "");
-			};
 		}
 
 		private void SetTasMovieCallbacks(ITasMovie movie)

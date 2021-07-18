@@ -61,6 +61,34 @@ namespace BizHawk.Client.EmuHawk
 			}
 
 			RefreshDialog(refreshNeeded, refreshBranches: false);
+
+			if (MainForm.PauseOnFrame.HasValue)
+			{
+				int diff = Emulator.Frame - _seekStartFrame.Value;
+				int unit = MainForm.PauseOnFrame.Value - _seekStartFrame.Value;
+				double progress = 0;
+
+				if (diff != 0 && unit != 0)
+				{
+					progress = (double)100d / unit * diff;
+				}
+
+				if (progress < 0)
+				{
+					progress = 0;
+				}
+				else if (progress > 100)
+				{
+					progress = 100;
+				}
+
+				SavingProgressBar.Value = (int)progress;
+			}
+			else
+			{
+				SavingProgressBar.Visible = false;
+				MessageStatusLabel.Text = "";
+			}
 		}
 
 		public override void Restart()
