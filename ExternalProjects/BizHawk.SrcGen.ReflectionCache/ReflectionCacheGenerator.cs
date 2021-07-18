@@ -49,7 +49,7 @@ namespace BizHawk.SrcGen.ReflectionCache
 				};
 				if (_namespace != null || syntaxNode is not NamespaceDeclarationSyntax syn) return;
 				var newNS = Ser(syn.Name);
-				if (!newNS.StartsWith("BizHawk.")) return;
+				if (!(newNS.StartsWith("BizHawk.") || newNS.StartsWith("BHTest."))) return;
 				_namespaces.Add(newNS);
 				if (_namespaces.Count == SAMPLE_SIZE) _namespace = CalcNamespace();
 			}
@@ -63,33 +63,43 @@ namespace BizHawk.SrcGen.ReflectionCache
 			if (context.SyntaxReceiver is not ReflectionCacheGenSyntaxReceiver receiver) return;
 			var nSpace = receiver.Namespace;
 			if (nSpace == null) return;
-			var extraImports = nSpace == "BizHawk.Common" ? string.Empty : "\nusing BizHawk.Common;";
 			var src = $@"#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-{extraImports}
+{(nSpace == "BizHawk.Common" ? string.Empty : "\nusing BizHawk.Common;")}
+using BizHawk.Common.StringExtensions;
 
 namespace {nSpace}
 {{
 	public static class ReflectionCache
 	{{
+		private const string EMBED_PREFIX = ""{nSpace}."";
+
+		private static Type[]? _types = null;
+
 		private static readonly Assembly Asm = typeof({nSpace}.ReflectionCache).Assembly;
 
 		public static readonly Version AsmVersion = Asm.GetName().Version!;
 
-		private static readonly Lazy<Type[]> _types = new Lazy<Type[]>(() => Asm.GetTypesWithoutLoadErrors().ToArray());
+		public static Type[] Types => _types ??= Asm.GetTypesWithoutLoadErrors().ToArray();
 
-		public static Type[] Types => _types.Value;
+		public static IEnumerable<string> EmbeddedResourceList()
+			=> Asm.GetManifestResourceNames().Where(s => s.StartsWith(EMBED_PREFIX)).Select(s => s.RemovePrefix(EMBED_PREFIX));
+
+		public static IEnumerable<string> EmbeddedResourceList(string extraPrefix)
+		{{
+			var fullPrefix = EMBED_PREFIX + extraPrefix;
+			return Asm.GetManifestResourceNames().Where(s => s.StartsWith(fullPrefix)).Select(s => s.RemovePrefix(fullPrefix));
+		}}
 
 		/// <exception cref=""ArgumentException"">not found</exception>
 		public static Stream EmbeddedResourceStream(string embedPath)
-		{{
-			var fullPath = $""{nSpace}.{{embedPath}}"";
-			return Asm.GetManifestResourceStream(fullPath) ?? throw new ArgumentException(""resource at {{fullPath}} not found"", nameof(embedPath));
-		}}
+			=> Asm.GetManifestResourceStream(EMBED_PREFIX + embedPath)
+				?? throw new ArgumentException(""resource at "" + EMBED_PREFIX + embedPath + "" not found"", nameof(embedPath));
 	}}
 }}
 ";

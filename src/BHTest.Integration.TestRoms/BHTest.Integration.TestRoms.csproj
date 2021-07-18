@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+	<Import Project="../MainSlnCommon.props" />
+	<PropertyGroup>
+		<OutputPath>$(ProjectDir)../../test_output</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(BIZHAWKTEST_RUN_KNOWN_FAILURES)' == '' ">
+		<DefineConstants>$(DefineConstants);SKIP_KNOWN_FAILURES</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(BIZHAWKTEST_SAVE_IMAGES)' == '' OR '$(BIZHAWKTEST_SAVE_IMAGES)' == 'failures' ">
+		<DefineConstants>$(DefineConstants);SAVE_IMAGES_ON_FAIL</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(BIZHAWKTEST_SAVE_IMAGES)' == 'all' ">
+		<DefineConstants>$(DefineConstants);SAVE_IMAGES_ON_FAIL;SAVE_IMAGES_ON_PASS</DefineConstants>
+	</PropertyGroup>
+	<!-- BIZHAWKTEST_SAVE_IMAGES=none => no constants -->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" PrivateAssets="all" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.3" PrivateAssets="all" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.3" PrivateAssets="all" />
+		<PackageReference Include="JunitXml.TestLogger" Version="3.0.98" PrivateAssets="all" />
+		<PackageReference Include="Magick.NET-Q8-AnyCPU" Version="7.24.1" PrivateAssets="all" />
+		<ProjectReference Include="$(ProjectDir)../BizHawk.Client.Common/BizHawk.Client.Common.csproj" />
+		<EmbeddedResource Include="res/**/*" />
+		<Content Include="compare.sh" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="$(ProjectDir)../../Assets/gamedb/**/*" LinkBase="gamedb" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+</Project>
